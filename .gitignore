@@ -12,6 +12,16 @@
 /[Uu]ser[Ss]ettings/
 *.log
 
+# Unity project is nested inside this repository.
+/Grid-Based-Strategy-Game/[Ll]ibrary/
+/Grid-Based-Strategy-Game/[Tt]emp/
+/Grid-Based-Strategy-Game/[Oo]bj/
+/Grid-Based-Strategy-Game/[Bb]uild/
+/Grid-Based-Strategy-Game/[Bb]uilds/
+/Grid-Based-Strategy-Game/[Ll]ogs/
+/Grid-Based-Strategy-Game/[Uu]ser[Ss]ettings/
+/Grid-Based-Strategy-Game/.vscode/
+
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/
@@ -37,6 +47,7 @@ ExportedObj/
 *.csproj
 *.unityproj
 *.sln
+*.slnx
 *.suo
 *.tmp
 *.user
