@@ -1,0 +1,23 @@
+{
+    "name": "GridBasedStrategyGame.Grid.EditModeTests",
+    "rootNamespace": "GridBasedStrategyGame.Grid.Tests",
+    "references": [
+        "GridBasedStrategyGame.Grid"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
