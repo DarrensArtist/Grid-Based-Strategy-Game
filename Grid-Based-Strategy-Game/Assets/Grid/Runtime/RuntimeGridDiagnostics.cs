@@ -15,6 +15,7 @@ namespace GridBasedStrategyGame.Grid
         [SerializeField] private bool showZones;
         [SerializeField] private bool showCoordinates;
         [SerializeField] private bool showStableIdentities;
+        [SerializeField] private bool showOccupants;
 
         [Header("Colours")]
         [SerializeField] private Color rootColour = Color.white;
@@ -32,10 +33,13 @@ namespace GridBasedStrategyGame.Grid
         public bool ShowZones => showZones;
         public bool ShowCoordinates => showCoordinates;
         public bool ShowStableIdentities => showStableIdentities;
+        public bool ShowOccupants => showOccupants;
         public bool AnyLayerVisible => showRoot || showBoundary || showActiveFootprint || showCentres ||
-                                       showZones || showCoordinates || showStableIdentities;
+                                       showZones || showCoordinates || showStableIdentities || showOccupants;
 
         public void Bind(RuntimeGridHost host) => gridHost = host;
+
+        public void SetOccupantsVisible(bool visible) => showOccupants = visible;
 
         public void SetLayers(
             bool root,

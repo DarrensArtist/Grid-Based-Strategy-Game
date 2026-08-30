@@ -3,7 +3,7 @@ using UnityEngine;
 namespace GridBasedStrategyGame.Grid
 {
     /// <summary>
-    /// Replaceable development harness for manually exercising Grid Slices 1-3 from the Inspector.
+    /// Replaceable development harness for manually exercising Grid Slices 1-4 from the Inspector.
     /// It owns no logical state and is not used by gameplay systems.
     /// </summary>
     [DisallowMultipleComponent]
@@ -18,9 +18,15 @@ namespace GridBasedStrategyGame.Grid
         [Min(0.1f)] [SerializeField] private float translationStep = 1f;
         [Range(1f, 180f)] [SerializeField] private float rotationStep = 15f;
 
+        [Header("Occupancy Test Request")]
+        [SerializeField] private string occupantId = "test-unit-1";
+        [SerializeField] private Vector2Int sourceCoordinate;
+        [SerializeField] private Vector2Int destinationCoordinate = new Vector2Int(1, 0);
+
         public RuntimeGridHost GridHost => gridHost;
         public BattlefieldPresenter Presenter => presenter;
         public RuntimeGridDiagnostics Diagnostics => diagnostics;
+        public GridOccupancyResult LastOccupancyResult { get; private set; }
 
         [ContextMenu("Manual Test/Reload Logical Grid")]
         public void ReloadLogicalGrid()
@@ -53,7 +59,33 @@ namespace GridBasedStrategyGame.Grid
 
             var enabled = !diagnostics.AnyLayerVisible;
             diagnostics.SetLayers(enabled, enabled, enabled, enabled, enabled, enabled, enabled);
+            diagnostics.SetOccupantsVisible(enabled);
         }
+
+        public void PlaceOccupant()
+        {
+            LastOccupancyResult = Grid.Place(
+                new GridOccupantId(occupantId), ToCoordinate(destinationCoordinate));
+        }
+
+        public void MoveOccupant()
+        {
+            LastOccupancyResult = Grid.Move(
+                new GridOccupantId(occupantId),
+                ToCoordinate(sourceCoordinate),
+                ToCoordinate(destinationCoordinate));
+        }
+
+        public void RemoveOccupant()
+        {
+            LastOccupancyResult = Grid.Remove(
+                new GridOccupantId(occupantId), ToCoordinate(sourceCoordinate));
+        }
+
+        public GridOccupancyConsistencyReport ScanOccupancy() => Grid.ScanOccupancyConsistency();
+
+        private RuntimeGrid Grid => gridHost != null ? gridHost.Grid : new RuntimeGrid();
+        private static GridCoordinate ToCoordinate(Vector2Int value) => new GridCoordinate(value.x, value.y);
 
         [ContextMenu("Manual Test/Move Grid Right")]
         public void MoveGridRight()

@@ -2,7 +2,7 @@
 
 > **Slice:** Transactional Cell Occupancy  
 +> **Recommended order:** 4 of 10  
-+> **Status:** Not started  
++> **Status:** Complete
 +> **Source:** Grid Module — Workable Implementation Slices
 
 ## Goal
@@ -25,16 +25,16 @@ Complete all required earlier slices stated in the source specification; normall
 
 ## Ordered Implementation Tasks
 
-- [ ] **Task 1: Define opaque occupant identity and results** — Use stable runtime identifiers without importing unit statistics or action rules; define explicit success/failure reasons.
-- [ ] **Task 2: Add forward and reverse occupancy indexes** — Track cell-to-occupant and occupant-to-cell within Grid-owned runtime state.
-- [ ] **Task 3: Implement placement validation and commit** — Validate ready state, identity, active destination, emptiness, and duplicate registration before changing both indexes.
-- [ ] **Task 4: Implement atomic movement** — Validate source registration and destination completely, then update both directions together. Document same-cell behaviour.
-- [ ] **Task 5: Implement guarded removal** — Clear only when the requested identity matches the current occupant and keep both indexes consistent.
-- [ ] **Task 6: Publish post-commit notifications** — Emit one result only after state is consistent; emit nothing misleading for rejected or no-op operations.
-- [ ] **Task 7: Integrate reset/reload cleanup** — Clear occupancy deliberately when runtime Grid state is replaced.
-- [ ] **Task 8: Add development consistency scanning** — Detect forward/reverse mismatches and expose useful diagnostics without trying to repair external entity ownership.
-- [ ] **Task 9: Build sequence and failure tests** — Cover place/move/remove, duplicates, occupied targets, wrong removal identity, inactive/outside cells, stale requests, and long mixed sequences.
-- [ ] **Task 10: Verify module boundaries** — Confirm no health, movement cost, animation, turn, team-permission, or defeat logic entered Grid.
+- [x] **Task 1: Define opaque occupant identity and results** — Use stable runtime identifiers without importing unit statistics or action rules; define explicit success/failure reasons.
+- [x] **Task 2: Add forward and reverse occupancy indexes** — Track cell-to-occupant and occupant-to-cell within Grid-owned runtime state.
+- [x] **Task 3: Implement placement validation and commit** — Validate ready state, identity, active destination, emptiness, and duplicate registration before changing both indexes.
+- [x] **Task 4: Implement atomic movement** — Validate source registration and destination completely, then update both directions together. Document same-cell behaviour.
+- [x] **Task 5: Implement guarded removal** — Clear only when the requested identity matches the current occupant and keep both indexes consistent.
+- [x] **Task 6: Publish post-commit notifications** — Emit one result only after state is consistent; emit nothing misleading for rejected or no-op operations.
+- [x] **Task 7: Integrate reset/reload cleanup** — Clear occupancy deliberately when runtime Grid state is replaced.
+- [x] **Task 8: Add development consistency scanning** — Detect forward/reverse mismatches and expose useful diagnostics without trying to repair external entity ownership.
+- [x] **Task 9: Build sequence and failure tests** — Cover place/move/remove, duplicates, occupied targets, wrong removal identity, inactive/outside cells, stale requests, and long mixed sequences.
+- [x] **Task 10: Verify module boundaries** — Confirm no health, movement cost, animation, turn, team-permission, or defeat logic entered Grid.
 
 ## Required Handoff Evidence
 
@@ -170,13 +170,13 @@ No persistent occupancy authoring is allowed. A play-mode test panel may spawn i
 
 ## Acceptance Criteria
 
-- [ ] Valid placement updates both lookup directions.
-- [ ] Invalid placement changes neither lookup.
-- [ ] Valid movement frees the source and occupies the destination atomically.
-- [ ] Failed movement leaves the occupant at its original cell.
-- [ ] Removal frees the cell and reverse index.
-- [ ] Inactive/outside coordinates never accept occupants.
-- [ ] Consistency scan finds no mismatch after every supported operation sequence.
+- [x] Valid placement updates both lookup directions.
+- [x] Invalid placement changes neither lookup.
+- [x] Valid movement frees the source and occupies the destination atomically.
+- [x] Failed movement leaves the occupant at its original cell.
+- [x] Removal frees the cell and reverse index.
+- [x] Inactive/outside coordinates never accept occupants.
+- [x] Consistency scan finds no mismatch after every supported operation sequence.
 
 ## Suggested Verification
 

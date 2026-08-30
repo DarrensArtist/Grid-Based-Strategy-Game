@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GridBasedStrategyGame.Grid
@@ -16,8 +17,10 @@ namespace GridBasedStrategyGame.Grid
         public GridGeometry Geometry => IsReady ? state.Geometry : default;
         public RuntimeGridSourceMetadata SourceMetadata => IsReady ? state.SourceMetadata : default;
         public Transform GridRoot => IsReady ? state.Mapper.GridRoot : null;
+        public int OccupiedCellCount => IsReady ? state.CellOccupants.Count : 0;
 
         public event Action<GridInitializationResult> InitializationCompleted;
+        public event Action<GridOccupancyResult> OccupancyChanged;
 
         public GridInitializationResult Initialize(ArenaGridProfile profile, Transform gridRoot)
         {
@@ -69,6 +72,231 @@ namespace GridBasedStrategyGame.Grid
             }
 
             return state.Mapper.TryGridToWorld(coordinate, out worldPosition, out _);
+        }
+
+        public bool TryGetOccupant(GridCoordinate coordinate, out GridOccupantId occupant)
+        {
+            if (IsReady && state.CellOccupants.TryGetValue(coordinate, out occupant))
+            {
+                return true;
+            }
+
+            occupant = default;
+            return false;
+        }
+
+        public bool TryGetOccupantLocation(GridOccupantId occupant, out GridCoordinate coordinate)
+        {
+            if (IsReady && occupant.IsValid && state.OccupantLocations.TryGetValue(occupant, out coordinate))
+            {
+                return true;
+            }
+
+            coordinate = default;
+            return false;
+        }
+
+        public GridOccupancyResult Place(GridOccupantId occupant, GridCoordinate destination)
+        {
+            var operation = GridOccupancyOperation.Place;
+            var commonFailure = ValidateCommon(operation, occupant);
+            if (commonFailure.HasValue)
+            {
+                return commonFailure.Value;
+            }
+
+            if (state.OccupantLocations.TryGetValue(occupant, out var existing))
+            {
+                return GridOccupancyResult.Failed(operation, GridOccupancyFailure.OccupantAlreadyRegistered,
+                    occupant, $"Occupant '{occupant}' is already registered at {existing}.", true, existing,
+                    true, destination);
+            }
+
+            var destinationFailure = ValidateDestination(operation, occupant, destination);
+            if (destinationFailure.HasValue)
+            {
+                return destinationFailure.Value;
+            }
+
+            state.CellOccupants.Add(destination, occupant);
+            state.OccupantLocations.Add(occupant, destination);
+            return Publish(GridOccupancyResult.Success(operation, occupant, false, default, true, destination));
+        }
+
+        /// <summary>Moves an occupant only when its registered location still matches expectedSource.</summary>
+        public GridOccupancyResult Move(
+            GridOccupantId occupant,
+            GridCoordinate expectedSource,
+            GridCoordinate destination)
+        {
+            var operation = GridOccupancyOperation.Move;
+            var commonFailure = ValidateCommon(operation, occupant);
+            if (commonFailure.HasValue)
+            {
+                return commonFailure.Value;
+            }
+
+            if (!state.OccupantLocations.TryGetValue(occupant, out var registeredSource))
+            {
+                return GridOccupancyResult.Failed(operation, GridOccupancyFailure.OccupantNotRegistered,
+                    occupant, $"Occupant '{occupant}' is not registered in this Grid.", true, expectedSource,
+                    true, destination);
+            }
+
+            if (registeredSource != expectedSource)
+            {
+                return GridOccupancyResult.Failed(operation, GridOccupancyFailure.SourceMismatch,
+                    occupant, $"Expected source {expectedSource} is stale; occupant is at {registeredSource}.",
+                    true, expectedSource, true, destination);
+            }
+
+            if (destination == registeredSource)
+            {
+                return GridOccupancyResult.Failed(operation, GridOccupancyFailure.SameCellMove,
+                    occupant, "Moving to the current cell is rejected as a no-op.", true, registeredSource,
+                    true, destination);
+            }
+
+            var destinationFailure = ValidateDestination(operation, occupant, destination);
+            if (destinationFailure.HasValue)
+            {
+                return destinationFailure.Value;
+            }
+
+            state.CellOccupants.Remove(registeredSource);
+            state.CellOccupants.Add(destination, occupant);
+            state.OccupantLocations[occupant] = destination;
+            return Publish(GridOccupancyResult.Success(
+                operation, occupant, true, registeredSource, true, destination));
+        }
+
+        public GridOccupancyResult Remove(GridOccupantId occupant, GridCoordinate expectedCoordinate)
+        {
+            var operation = GridOccupancyOperation.Remove;
+            var commonFailure = ValidateCommon(operation, occupant);
+            if (commonFailure.HasValue)
+            {
+                return commonFailure.Value;
+            }
+
+            if (state.CellOccupants.TryGetValue(expectedCoordinate, out var occupantAtExpectedCell) &&
+                occupantAtExpectedCell != occupant)
+            {
+                return GridOccupancyResult.Failed(operation, GridOccupancyFailure.OccupantMismatch,
+                    occupant, $"Cell {expectedCoordinate} is occupied by a different identity.", true,
+                    expectedCoordinate);
+            }
+
+            if (!state.OccupantLocations.TryGetValue(occupant, out var registeredCoordinate))
+            {
+                return GridOccupancyResult.Failed(operation, GridOccupancyFailure.OccupantNotRegistered,
+                    occupant, $"Occupant '{occupant}' is not registered in this Grid.", true,
+                    expectedCoordinate);
+            }
+
+            if (registeredCoordinate != expectedCoordinate)
+            {
+                return GridOccupancyResult.Failed(operation, GridOccupancyFailure.SourceMismatch,
+                    occupant, $"Expected cell {expectedCoordinate} is stale; occupant is at {registeredCoordinate}.",
+                    true, expectedCoordinate);
+            }
+
+            if (!state.CellOccupants.TryGetValue(expectedCoordinate, out var current) || current != occupant)
+            {
+                return GridOccupancyResult.Failed(operation, GridOccupancyFailure.OccupantMismatch,
+                    occupant, $"Cell {expectedCoordinate} does not contain occupant '{occupant}'.", true,
+                    expectedCoordinate);
+            }
+
+            state.CellOccupants.Remove(expectedCoordinate);
+            state.OccupantLocations.Remove(occupant);
+            return Publish(GridOccupancyResult.Success(
+                operation, occupant, true, expectedCoordinate, false, default));
+        }
+
+        public GridOccupancyConsistencyReport ScanOccupancyConsistency()
+        {
+            var errors = new List<string>();
+            if (!IsReady)
+            {
+                errors.Add("The Grid is not ready; no occupancy state is available to scan.");
+                return new GridOccupancyConsistencyReport(0, 0, errors);
+            }
+
+            foreach (var pair in state.CellOccupants)
+            {
+                if (!state.OccupantLocations.TryGetValue(pair.Value, out var reverse) || reverse != pair.Key)
+                {
+                    errors.Add($"Cell {pair.Key} points to '{pair.Value}' without a matching reverse entry.");
+                }
+
+                if (!TryGetPlayableCell(pair.Key, out _))
+                {
+                    errors.Add($"Occupied coordinate {pair.Key} is not an active playable cell.");
+                }
+            }
+
+            foreach (var pair in state.OccupantLocations)
+            {
+                if (!state.CellOccupants.TryGetValue(pair.Value, out var forward) || forward != pair.Key)
+                {
+                    errors.Add($"Occupant '{pair.Key}' points to {pair.Value} without a matching cell entry.");
+                }
+            }
+
+            return new GridOccupancyConsistencyReport(
+                state.CellOccupants.Count, state.OccupantLocations.Count, errors);
+        }
+
+        private GridOccupancyResult? ValidateCommon(GridOccupancyOperation operation, GridOccupantId occupant)
+        {
+            if (!IsReady)
+            {
+                return GridOccupancyResult.Failed(operation, GridOccupancyFailure.GridNotReady,
+                    occupant, "The Grid must be ready before occupancy can change.");
+            }
+
+            if (!occupant.IsValid)
+            {
+                return GridOccupancyResult.Failed(operation, GridOccupancyFailure.InvalidOccupant,
+                    occupant, "A non-empty stable occupant identity is required.");
+            }
+
+            return null;
+        }
+
+        private GridOccupancyResult? ValidateDestination(
+            GridOccupancyOperation operation,
+            GridOccupantId occupant,
+            GridCoordinate destination)
+        {
+            if (!state.Geometry.Contains(destination))
+            {
+                return GridOccupancyResult.Failed(operation, GridOccupancyFailure.DestinationOutsideGrid,
+                    occupant, $"Destination {destination} is outside the Grid.", false, default, true,
+                    destination);
+            }
+
+            if (!TryGetPlayableCell(destination, out _))
+            {
+                return GridOccupancyResult.Failed(operation, GridOccupancyFailure.DestinationInactive,
+                    occupant, $"Destination {destination} is inactive.", false, default, true, destination);
+            }
+
+            if (state.CellOccupants.ContainsKey(destination))
+            {
+                return GridOccupancyResult.Failed(operation, GridOccupancyFailure.DestinationOccupied,
+                    occupant, $"Destination {destination} is already occupied.", false, default, true,
+                    destination);
+            }
+
+            return null;
+        }
+
+        private GridOccupancyResult Publish(GridOccupancyResult result)
+        {
+            OccupancyChanged?.Invoke(result);
+            return result;
         }
 
         private GridInitializationResult Load(ArenaGridProfile profile, Transform gridRoot)
@@ -124,7 +352,9 @@ namespace GridBasedStrategyGame.Grid
                     new RuntimeGridSourceMetadata(
                         profile.ProfileId,
                         profile.SchemaVersion,
-                        profile.LayoutChecksum));
+                        profile.LayoutChecksum),
+                    new Dictionary<GridCoordinate, GridOccupantId>(),
+                    new Dictionary<GridOccupantId, GridCoordinate>());
 
                 state = candidate;
                 Status = RuntimeGridStatus.Ready;
@@ -296,19 +526,25 @@ namespace GridBasedStrategyGame.Grid
             public RuntimeGridCell[] Cells { get; }
             public int ActiveCellCount { get; }
             public RuntimeGridSourceMetadata SourceMetadata { get; }
+            public Dictionary<GridCoordinate, GridOccupantId> CellOccupants { get; }
+            public Dictionary<GridOccupantId, GridCoordinate> OccupantLocations { get; }
 
             public PublishedState(
                 GridGeometry geometry,
                 GridCoordinateMapper mapper,
                 RuntimeGridCell[] cells,
                 int activeCellCount,
-                RuntimeGridSourceMetadata sourceMetadata)
+                RuntimeGridSourceMetadata sourceMetadata,
+                Dictionary<GridCoordinate, GridOccupantId> cellOccupants,
+                Dictionary<GridOccupantId, GridCoordinate> occupantLocations)
             {
                 Geometry = geometry;
                 Mapper = mapper;
                 Cells = cells;
                 ActiveCellCount = activeCellCount;
                 SourceMetadata = sourceMetadata;
+                CellOccupants = cellOccupants;
+                OccupantLocations = occupantLocations;
             }
         }
     }

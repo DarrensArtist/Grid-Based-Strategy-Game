@@ -21,6 +21,9 @@ namespace GridBasedStrategyGame.Grid.Editor
                 EditorGUILayout.LabelField("Schema", grid.SourceMetadata.SchemaVersion.ToString());
                 EditorGUILayout.LabelField("Checksum", grid.SourceMetadata.LayoutChecksum);
                 EditorGUILayout.LabelField("Active Cells", grid.ActiveCellCount.ToString());
+                EditorGUILayout.LabelField("Occupied Cells", grid.OccupiedCellCount.ToString());
+                var consistency = grid.ScanOccupancyConsistency();
+                EditorGUILayout.LabelField("Occupancy Indexes", consistency.IsConsistent ? "Consistent" : "Mismatch");
             }
         }
 
@@ -29,7 +32,7 @@ namespace GridBasedStrategyGame.Grid.Editor
         {
             var grid = diagnostics.Grid;
             if (grid == null || !grid.IsReady ||
-                (!diagnostics.ShowCoordinates && !diagnostics.ShowStableIdentities))
+                (!diagnostics.ShowCoordinates && !diagnostics.ShowStableIdentities && !diagnostics.ShowOccupants))
             {
                 return;
             }
@@ -52,7 +55,15 @@ namespace GridBasedStrategyGame.Grid.Editor
                         label = string.IsNullOrEmpty(label) ? cell.StableIdentity : $"{label}\n{cell.StableIdentity}";
                     }
 
-                    Handles.Label(centre, label);
+                    if (diagnostics.ShowOccupants && grid.TryGetOccupant(coordinate, out var occupant))
+                    {
+                        label = string.IsNullOrEmpty(label) ? $"Occupant: {occupant}" : $"{label}\nOccupant: {occupant}";
+                    }
+
+                    if (!string.IsNullOrEmpty(label))
+                    {
+                        Handles.Label(centre, label);
+                    }
                 }
             }
         }

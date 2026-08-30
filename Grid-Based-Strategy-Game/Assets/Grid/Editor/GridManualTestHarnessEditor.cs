@@ -25,6 +25,12 @@ namespace GridBasedStrategyGame.Grid.Editor
                 if (GUILayout.Button("Clear Presentation")) harness.ClearPresentation();
 
                 EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Occupancy", EditorStyles.boldLabel);
+                if (GUILayout.Button("Place Occupant At Destination")) harness.PlaceOccupant();
+                if (GUILayout.Button("Move Occupant Source → Destination")) harness.MoveOccupant();
+                if (GUILayout.Button("Remove Occupant At Source")) harness.RemoveOccupant();
+
+                EditorGUILayout.Space();
                 EditorGUILayout.LabelField("Diagnostics and Transform", EditorStyles.boldLabel);
                 if (GUILayout.Button("Toggle All Diagnostics")) harness.ToggleAllDiagnostics();
                 if (GUILayout.Button("Move Grid Right")) harness.MoveGridRight();
@@ -42,6 +48,22 @@ namespace GridBasedStrategyGame.Grid.Editor
             EditorGUILayout.LabelField(
                 "Diagnostics",
                 harness.Diagnostics != null && harness.Diagnostics.AnyLayerVisible ? "Visible" : "Hidden");
+            if (grid != null)
+            {
+                EditorGUILayout.LabelField("Occupied Cells", grid.OccupiedCellCount.ToString());
+                var consistency = harness.ScanOccupancy();
+                EditorGUILayout.LabelField("Occupancy Indexes", consistency.IsConsistent ? "Consistent" : "Mismatch");
+            }
+
+            var last = harness.LastOccupancyResult;
+            if (last.Succeeded || last.Failure != GridOccupancyFailure.None)
+            {
+                EditorGUILayout.LabelField("Last Occupancy Request", last.Succeeded ? "Succeeded" : last.Failure.ToString());
+                if (!string.IsNullOrEmpty(last.Message))
+                {
+                    EditorGUILayout.HelpBox(last.Message, last.Succeeded ? MessageType.Info : MessageType.Warning);
+                }
+            }
         }
     }
 }
