@@ -16,6 +16,7 @@ namespace GridBasedStrategyGame.Grid
         [SerializeField] private bool showCoordinates;
         [SerializeField] private bool showStableIdentities;
         [SerializeField] private bool showOccupants;
+        [SerializeField] private bool showLastQuery;
 
         [Header("Colours")]
         [SerializeField] private Color rootColour = Color.white;
@@ -34,12 +35,14 @@ namespace GridBasedStrategyGame.Grid
         public bool ShowCoordinates => showCoordinates;
         public bool ShowStableIdentities => showStableIdentities;
         public bool ShowOccupants => showOccupants;
+        public bool ShowLastQuery => showLastQuery;
         public bool AnyLayerVisible => showRoot || showBoundary || showActiveFootprint || showCentres ||
-                                       showZones || showCoordinates || showStableIdentities || showOccupants;
+                                       showZones || showCoordinates || showStableIdentities || showOccupants || showLastQuery;
 
         public void Bind(RuntimeGridHost host) => gridHost = host;
 
         public void SetOccupantsVisible(bool visible) => showOccupants = visible;
+        public void SetLastQueryVisible(bool visible) => showLastQuery = visible;
 
         public void SetLayers(
             bool root,

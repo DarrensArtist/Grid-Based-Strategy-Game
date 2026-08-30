@@ -31,6 +31,10 @@ namespace GridBasedStrategyGame.Grid.Editor
                 if (GUILayout.Button("Remove Occupant At Source")) harness.RemoveOccupant();
 
                 EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Spatial Queries", EditorStyles.boldLabel);
+                if (GUILayout.Button("Execute Spatial Query")) harness.ExecuteSpatialQuery();
+
+                EditorGUILayout.Space();
                 EditorGUILayout.LabelField("Diagnostics and Transform", EditorStyles.boldLabel);
                 if (GUILayout.Button("Toggle All Diagnostics")) harness.ToggleAllDiagnostics();
                 if (GUILayout.Button("Move Grid Right")) harness.MoveGridRight();
@@ -53,6 +57,13 @@ namespace GridBasedStrategyGame.Grid.Editor
                 EditorGUILayout.LabelField("Occupied Cells", grid.OccupiedCellCount.ToString());
                 var consistency = harness.ScanOccupancy();
                 EditorGUILayout.LabelField("Occupancy Indexes", consistency.IsConsistent ? "Consistent" : "Mismatch");
+                var query = grid.LastQueryResult;
+                EditorGUILayout.LabelField("Last Query", query != null ? query.Description : "None");
+                if (query != null)
+                {
+                    EditorGUILayout.LabelField("Query Results", query.Coordinates.Count.ToString());
+                    EditorGUILayout.LabelField("Termination", query.Termination.ToString());
+                }
             }
 
             var last = harness.LastOccupancyResult;

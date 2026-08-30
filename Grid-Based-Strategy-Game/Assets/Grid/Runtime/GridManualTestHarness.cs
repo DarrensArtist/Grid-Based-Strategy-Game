@@ -23,6 +23,17 @@ namespace GridBasedStrategyGame.Grid
         [SerializeField] private Vector2Int sourceCoordinate;
         [SerializeField] private Vector2Int destinationCoordinate = new Vector2Int(1, 0);
 
+        [Header("Spatial Query Test Request")]
+        [SerializeField] private GridQueryKind queryKind = GridQueryKind.Neighbours;
+        [SerializeField] private Vector2Int queryOrigin;
+        [SerializeField] private Vector2Int queryEnd = new Vector2Int(2, 2);
+        [SerializeField] private GridNeighbourMode neighbourMode = GridNeighbourMode.All;
+        [SerializeField] private GridDirection direction = GridDirection.North;
+        [Min(0)] [SerializeField] private int lengthOrRadius = 2;
+        [SerializeField] private GridDistanceMode distanceMode = GridDistanceMode.Manhattan;
+        [SerializeField] private bool includeOrigin;
+        [SerializeField] private GridOccupancyFilter queryOccupancyFilter = GridOccupancyFilter.All;
+
         public RuntimeGridHost GridHost => gridHost;
         public BattlefieldPresenter Presenter => presenter;
         public RuntimeGridDiagnostics Diagnostics => diagnostics;
@@ -60,6 +71,7 @@ namespace GridBasedStrategyGame.Grid
             var enabled = !diagnostics.AnyLayerVisible;
             diagnostics.SetLayers(enabled, enabled, enabled, enabled, enabled, enabled, enabled);
             diagnostics.SetOccupantsVisible(enabled);
+            diagnostics.SetLastQueryVisible(enabled);
         }
 
         public void PlaceOccupant()
@@ -83,6 +95,26 @@ namespace GridBasedStrategyGame.Grid
         }
 
         public GridOccupancyConsistencyReport ScanOccupancy() => Grid.ScanOccupancyConsistency();
+
+        public GridQueryResult ExecuteSpatialQuery()
+        {
+            var origin = ToCoordinate(queryOrigin);
+            switch (queryKind)
+            {
+                case GridQueryKind.Neighbours:
+                    return Grid.QueryNeighbours(origin, neighbourMode, queryOccupancyFilter);
+                case GridQueryKind.DirectionalLine:
+                    return Grid.QueryDirectionalLine(origin, direction, lengthOrRadius, queryOccupancyFilter);
+                case GridQueryKind.Rectangle:
+                    return Grid.QueryRectangle(origin, ToCoordinate(queryEnd), queryOccupancyFilter);
+                case GridQueryKind.Area:
+                    return Grid.QueryArea(origin, lengthOrRadius, distanceMode, includeOrigin, queryOccupancyFilter);
+                case GridQueryKind.PlayableEdges:
+                    return Grid.QueryPlayableEdges();
+                default:
+                    return null;
+            }
+        }
 
         private RuntimeGrid Grid => gridHost != null ? gridHost.Grid : new RuntimeGrid();
         private static GridCoordinate ToCoordinate(Vector2Int value) => new GridCoordinate(value.x, value.y);

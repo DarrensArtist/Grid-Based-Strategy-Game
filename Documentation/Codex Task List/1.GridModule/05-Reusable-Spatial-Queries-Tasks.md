@@ -2,7 +2,7 @@
 
 > **Slice:** Reusable Spatial Queries  
 +> **Recommended order:** 5 of 10  
-+> **Status:** Not started  
++> **Status:** Complete
 +> **Source:** Grid Module — Workable Implementation Slices
 
 ## Goal
@@ -25,16 +25,16 @@ Complete all required earlier slices stated in the source specification; normall
 
 ## Ordered Implementation Tasks
 
-- [ ] **Task 1: Define direction and query contracts** — Create the eight planar directions, deterministic ordering, explicit origin-inclusion rules, distance modes, and occupancy filter modes.
-- [ ] **Task 2: Implement neighbour queries** — Return cardinal, diagonal, or combined active neighbours with stable ordering.
-- [ ] **Task 3: Implement directional line queries** — Walk coordinate geometry and terminate at the first inactive/outside coordinate without re-entering beyond gaps.
-- [ ] **Task 4: Implement rectangle queries** — Apply the documented normalise-or-reject policy, clip to active cells, de-duplicate, and preserve ordering.
-- [ ] **Task 5: Implement area/group queries** — Support explicitly named Manhattan, Chebyshev, or approved distance modes so semantics cannot be confused.
-- [ ] **Task 6: Add edge reporting** — Expose playable arena edges as geometry facts without inferring movement or targeting legality.
-- [ ] **Task 7: Apply optional occupancy filters** — Use Slice 4 state only when requested; default geometry must not stop at occupied cells.
-- [ ] **Task 8: Expose immutable results** — Return read-only values and explicit invalid-request failures without mutating Grid state.
-- [ ] **Task 9: Add query diagnostics** — Allow the last query, order indices, direction, bounds, and termination reason to be visualised independently.
-- [ ] **Task 10: Create topology tests** — Cover centre/edge/corner, concave gaps, cut corners, zero sizes, invalid origins, repeatable ordering, filters, and de-duplication.
+- [x] **Task 1: Define direction and query contracts** — Create the eight planar directions, deterministic ordering, explicit origin-inclusion rules, distance modes, and occupancy filter modes.
+- [x] **Task 2: Implement neighbour queries** — Return cardinal, diagonal, or combined active neighbours with stable ordering.
+- [x] **Task 3: Implement directional line queries** — Walk coordinate geometry and terminate at the first inactive/outside coordinate without re-entering beyond gaps.
+- [x] **Task 4: Implement rectangle queries** — Apply the documented normalise-or-reject policy, clip to active cells, de-duplicate, and preserve ordering.
+- [x] **Task 5: Implement area/group queries** — Support explicitly named Manhattan, Chebyshev, or approved distance modes so semantics cannot be confused.
+- [x] **Task 6: Add edge reporting** — Expose playable arena edges as geometry facts without inferring movement or targeting legality.
+- [x] **Task 7: Apply optional occupancy filters** — Use Slice 4 state only when requested; default geometry must not stop at occupied cells.
+- [x] **Task 8: Expose immutable results** — Return read-only values and explicit invalid-request failures without mutating Grid state.
+- [x] **Task 9: Add query diagnostics** — Allow the last query, order indices, direction, bounds, and termination reason to be visualised independently.
+- [x] **Task 10: Create topology tests** — Cover centre/edge/corner, concave gaps, cut corners, zero sizes, invalid origins, repeatable ordering, filters, and de-duplication.
 
 ## Required Handoff Evidence
 
@@ -167,12 +167,12 @@ No content asset is required. A query test panel should allow origin, query type
 
 ## Acceptance Criteria
 
-- [ ] Centre, edge, and corner neighbour queries return correct cardinal/diagonal sets.
-- [ ] Lines stop at the first inactive coordinate and never re-enter.
-- [ ] Rectangle and group results contain only active cells.
-- [ ] Repeating a query returns the same ordering.
-- [ ] Occupancy filtering never mutates occupancy.
-- [ ] Query names/results do not claim movement or attack legality.
+- [x] Centre, edge, and corner neighbour queries return correct cardinal/diagonal sets.
+- [x] Lines stop at the first inactive coordinate and never re-enter.
+- [x] Rectangle and group results contain only active cells.
+- [x] Repeating a query returns the same ordering.
+- [x] Occupancy filtering never mutates occupancy.
+- [x] Query names/results do not claim movement or attack legality.
 
 ## Suggested Verification
 

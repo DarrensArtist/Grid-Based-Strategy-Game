@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GridBasedStrategyGame.Grid
 {
     /// <summary>Owns the atomically published logical battlefield for one runtime Grid.</summary>
-    public sealed class RuntimeGrid
+    public sealed partial class RuntimeGrid
     {
         private PublishedState state;
 
