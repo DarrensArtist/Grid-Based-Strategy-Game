@@ -56,5 +56,54 @@ namespace GridBasedStrategyGame.Grid.Tests
             Assert.That(profile.TryGetCellDefinition(new GridCoordinate(-1, 0), out _), Is.False);
             Assert.That(profile.TryGetCellDefinition(new GridCoordinate(1, 0), out _), Is.False);
         }
+
+        [Test]
+        public void DerivedMetadata_IsStableForEqualLayoutsAndChangesWithLayoutFacts()
+        {
+            var definitions = new[]
+            {
+                new ArenaCellDefinition(true, ArenaCellZone.Neutral)
+            };
+            profile = ArenaGridProfile.CreateTransient(
+                "first",
+                ArenaGridProfile.CurrentSchemaVersion,
+                1,
+                1,
+                1f,
+                definitions,
+                string.Empty,
+                -1);
+            var equal = ArenaGridProfile.CreateTransient(
+                "different-identity",
+                ArenaGridProfile.CurrentSchemaVersion,
+                1,
+                1,
+                1f,
+                definitions,
+                "manually-entered-value",
+                99);
+            var changed = ArenaGridProfile.CreateTransient(
+                "changed",
+                ArenaGridProfile.CurrentSchemaVersion,
+                1,
+                1,
+                1f,
+                new[] { new ArenaCellDefinition(true, ArenaCellZone.TeamADeployment) },
+                string.Empty,
+                -1);
+
+            try
+            {
+                Assert.That(profile.LayoutChecksum, Has.Length.EqualTo(64));
+                Assert.That(equal.LayoutChecksum, Is.EqualTo(profile.LayoutChecksum));
+                Assert.That(changed.LayoutChecksum, Is.Not.EqualTo(profile.LayoutChecksum));
+                Assert.That(equal.ExpectedActiveCellCount, Is.EqualTo(1));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(equal);
+                UnityEngine.Object.DestroyImmediate(changed);
+            }
+        }
     }
 }

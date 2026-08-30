@@ -1,4 +1,7 @@
 using System;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 using UnityEngine;
 
 namespace GridBasedStrategyGame.Grid
@@ -40,12 +43,6 @@ namespace GridBasedStrategyGame.Grid
         [Tooltip("Row-major definitions: index = z * width + x. Use the Arena Layout Editor when available.")]
         [SerializeField] private ArenaCellDefinition[] cellDefinitions = Array.Empty<ArenaCellDefinition>();
 
-        [Header("Derived Summary")]
-        [Tooltip("Expected active count. A negative value means the summary is not yet recorded.")]
-        [SerializeField] private int expectedActiveCellCount = -1;
-        [Tooltip("Deterministic checksum of gameplay-affecting authored layout data.")]
-        [SerializeField] private string layoutChecksum;
-
         [Header("Authoring")]
         [TextArea(3, 8)] [SerializeField] private string designerNotes;
 
@@ -57,8 +54,8 @@ namespace GridBasedStrategyGame.Grid
         public int Height => height;
         public float CellSize => cellSize;
         public int CellDefinitionCount => cellDefinitions?.Length ?? 0;
-        public int ExpectedActiveCellCount => expectedActiveCellCount;
-        public string LayoutChecksum => layoutChecksum;
+        public int ExpectedActiveCellCount => CalculateActiveCellCount();
+        public string LayoutChecksum => CalculateLayoutChecksum();
         public string DesignerNotes => designerNotes;
 
         public bool TryGetCellDefinition(GridCoordinate coordinate, out ArenaCellDefinition definition)
@@ -79,6 +76,62 @@ namespace GridBasedStrategyGame.Grid
 
             definition = cellDefinitions[index];
             return true;
+        }
+
+        public int CalculateActiveCellCount()
+        {
+            if (cellDefinitions == null)
+            {
+                return 0;
+            }
+
+            var count = 0;
+            foreach (var definition in cellDefinitions)
+            {
+                if (definition.IsActive)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        public string CalculateLayoutChecksum()
+        {
+            var canonical = new StringBuilder();
+            canonical.Append(schemaVersion).Append('|')
+                .Append(width).Append('|')
+                .Append(height).Append('|')
+                .Append(cellSize.ToString("R", CultureInfo.InvariantCulture)).Append('|');
+
+            if (cellDefinitions == null)
+            {
+                canonical.Append("null");
+            }
+            else
+            {
+                canonical.Append(cellDefinitions.Length).Append('|');
+                foreach (var definition in cellDefinitions)
+                {
+                    canonical.Append(definition.IsActive ? '1' : '0')
+                        .Append(':')
+                        .Append((int)definition.Zone)
+                        .Append(';');
+                }
+            }
+
+            using (var sha256 = SHA256.Create())
+            {
+                var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(canonical.ToString()));
+                var result = new StringBuilder(bytes.Length * 2);
+                foreach (var value in bytes)
+                {
+                    result.Append(value.ToString("x2", CultureInfo.InvariantCulture));
+                }
+
+                return result.ToString();
+            }
         }
 
         /// <summary>Creates a non-persistent profile for tests and temporary integration harnesses.</summary>
@@ -102,8 +155,6 @@ namespace GridBasedStrategyGame.Grid
             profile.cellDefinitions = definitions == null
                 ? null
                 : (ArenaCellDefinition[])definitions.Clone();
-            profile.layoutChecksum = layoutChecksum;
-            profile.expectedActiveCellCount = expectedActiveCellCount;
             return profile;
         }
     }

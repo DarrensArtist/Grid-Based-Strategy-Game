@@ -19,6 +19,7 @@ namespace GridBasedStrategyGame.Grid.Tests
                 var host = gridRoot.GetComponent<RuntimeGridHost>();
                 var presenter = gridRoot.GetComponent<BattlefieldPresenter>();
                 var diagnostics = gridRoot.GetComponent<RuntimeGridDiagnostics>();
+                var harness = gridRoot.GetComponent<GridManualTestHarness>();
 
                 Assert.That(host, Is.Not.Null);
                 Assert.That(host.Profile, Is.Not.Null);
@@ -26,6 +27,14 @@ namespace GridBasedStrategyGame.Grid.Tests
                 Assert.That(presenter, Is.Not.Null);
                 Assert.That(diagnostics, Is.Not.Null);
                 Assert.That(diagnostics.AnyLayerVisible, Is.False);
+                Assert.That(harness, Is.Not.Null);
+                Assert.That(harness.GridHost, Is.SameAs(host));
+                Assert.That(harness.Presenter, Is.SameAs(presenter));
+                Assert.That(harness.Diagnostics, Is.SameAs(diagnostics));
+
+                Assert.That(host.Initialise().Succeeded, Is.True);
+                presenter.Bind(host.Grid);
+                Assert.That(presenter.SurfaceCount, Is.EqualTo(21));
             }
             finally
             {

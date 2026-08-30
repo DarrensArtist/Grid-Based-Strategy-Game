@@ -92,7 +92,7 @@ namespace GridBasedStrategyGame.Grid.Tests
             Assert.That(firstCell.SourceProfileId, Is.EqualTo("stable-profile"));
             Assert.That(firstGrid.SourceMetadata.ProfileId, Is.EqualTo("stable-profile"));
             Assert.That(firstGrid.SourceMetadata.SchemaVersion, Is.EqualTo(ArenaGridProfile.CurrentSchemaVersion));
-            Assert.That(firstGrid.SourceMetadata.LayoutChecksum, Is.EqualTo("layout-123"));
+            Assert.That(firstGrid.SourceMetadata.LayoutChecksum, Is.EqualTo(profile.LayoutChecksum));
         }
 
         [Test]
@@ -181,7 +181,7 @@ namespace GridBasedStrategyGame.Grid.Tests
         }
 
         [Test]
-        public void ExpectedActiveCountMismatch_IsRejectedWithoutReadyState()
+        public void StaleAuthoredActiveCount_IsReplacedByDerivedCount()
         {
             var profile = CreateProfile(
                 "wrong-summary",
@@ -193,7 +193,9 @@ namespace GridBasedStrategyGame.Grid.Tests
 
             var result = grid.Initialize(profile, rootObject.transform);
 
-            AssertFailedWithoutState(grid, result, GridInitializationFailure.ActiveCellCountMismatch);
+            Assert.That(result.Succeeded, Is.True);
+            Assert.That(profile.ExpectedActiveCellCount, Is.EqualTo(1));
+            Assert.That(grid.ActiveCellCount, Is.EqualTo(1));
         }
 
         [Test]
@@ -213,7 +215,7 @@ namespace GridBasedStrategyGame.Grid.Tests
         }
 
         [Test]
-        public void BlankChecksum_IsRejectedBeforePublication()
+        public void BlankStoredChecksum_IsRebuiltAndDoesNotBlockPublication()
         {
             var profile = CreateProfile(
                 "checksum-required",
@@ -226,7 +228,9 @@ namespace GridBasedStrategyGame.Grid.Tests
 
             var result = grid.Initialize(profile, rootObject.transform);
 
-            AssertFailedWithoutState(grid, result, GridInitializationFailure.InvalidLayoutChecksum);
+            Assert.That(result.Succeeded, Is.True);
+            Assert.That(profile.LayoutChecksum, Has.Length.EqualTo(64));
+            Assert.That(grid.SourceMetadata.LayoutChecksum, Is.EqualTo(profile.LayoutChecksum));
         }
 
         [Test]
