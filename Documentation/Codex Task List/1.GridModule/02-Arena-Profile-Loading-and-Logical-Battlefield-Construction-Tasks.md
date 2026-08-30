@@ -2,7 +2,7 @@
 
 > **Slice:** Arena Profile Loading and Logical Battlefield Construction  
 +> **Recommended order:** 2 of 10  
-+> **Status:** Not started  
++> **Status:** Complete  
 +> **Source:** Grid Module — Workable Implementation Slices
 
 ## Goal
@@ -25,16 +25,16 @@ Complete all required earlier slices stated in the source specification; normall
 
 ## Ordered Implementation Tasks
 
-- [ ] **Task 1: Inspect Slice 1 APIs** — Confirm the implementation uses the existing coordinate and mapping authority without copying formulas.
-- [ ] **Task 2: Define ArenaGridProfile** — Create the reusable ScriptableObject configuration with identity, schema version, dimensions, cell size, active layout, zone layout, checksum/summary fields, and designer notes.
-- [ ] **Task 3: Define runtime cell and lifecycle types** — Add cell identity, active state, zone, source metadata, and Uninitialised/Initialising/Ready/Failed lifecycle state with read-only public access.
-- [ ] **Task 4: Implement structural profile validation** — Reject null, unsupported, malformed, or inconsistent payloads before a ready grid can be published.
-- [ ] **Task 5: Build candidate runtime state** — Allocate deterministic backing entries, apply active/zone facts, and derive stable cell identities without mutating the profile.
-- [ ] **Task 6: Commit initialisation atomically** — Publish the candidate only after all checks pass; otherwise discard it and expose a structured failure.
-- [ ] **Task 7: Implement read-only grid queries** — Expose geometry, source metadata, cell existence, playable state, zone, identity, and centres without leaking mutable collections.
-- [ ] **Task 8: Handle deliberate reloads** — Require an explicit lifecycle operation and replace rather than merge runtime layout state.
-- [ ] **Task 9: Create representative profile fixtures** — Add valid odd/even profiles plus malformed payload, invalid zone, empty layout, and unsupported-version cases.
-- [ ] **Task 10: Test and document** — Verify atomic failure, source immutability, counts, zones, stable identities, and Slice 1 centre integration.
+- [x] **Task 1: Inspect Slice 1 APIs** — Confirm the implementation uses the existing coordinate and mapping authority without copying formulas.
+- [x] **Task 2: Define ArenaGridProfile** — Create the reusable ScriptableObject configuration with identity, schema version, dimensions, cell size, active layout, zone layout, checksum/summary fields, and designer notes.
+- [x] **Task 3: Define runtime cell and lifecycle types** — Add cell identity, active state, zone, source metadata, and Uninitialised/Initialising/Ready/Failed lifecycle state with read-only public access.
+- [x] **Task 4: Implement structural profile validation** — Reject null, unsupported, malformed, or inconsistent payloads before a ready grid can be published.
+- [x] **Task 5: Build candidate runtime state** — Allocate deterministic backing entries, apply active/zone facts, and derive stable cell identities without mutating the profile.
+- [x] **Task 6: Commit initialisation atomically** — Publish the candidate only after all checks pass; otherwise discard it and expose a structured failure.
+- [x] **Task 7: Implement read-only grid queries** — Expose geometry, source metadata, cell existence, playable state, zone, identity, and centres without leaking mutable collections.
+- [x] **Task 8: Handle deliberate reloads** — Require an explicit lifecycle operation and replace rather than merge runtime layout state.
+- [x] **Task 9: Create representative profile fixtures** — Add valid odd/even profiles plus malformed payload, invalid zone, empty layout, and unsupported-version cases.
+- [x] **Task 10: Test and document** — Verify atomic failure, source immutability, counts, zones, stable identities, and Slice 1 centre integration.
 
 ## Required Handoff Evidence
 
@@ -57,6 +57,15 @@ The slice is done only when:
 - Public APIs preserve the module boundaries and do not duplicate an earlier slice's authority.
 - Diagnostics fail clearly and do not fabricate usable state after invalid input.
 - Documentation/comments explain non-obvious rules, especially deterministic ordering, boundary behaviour, and atomicity.
+
+## Implementation Notes
+
+- `ArenaGridProfile` stores row-major cell definitions (`index = z * width + x`) and remains reusable configuration; runtime construction copies its facts into an independently owned candidate state.
+- Runtime loading supports schema version `1`. Profile identity and layout checksum are required and cached as source metadata.
+- Stable cell identities use the deterministic format `{profileId}:{x}:{z}` and each runtime cell also exposes its source profile identity explicitly.
+- Empty active layouts are rejected by the runtime loader. A later authoring tool may support an explicit non-runtime preview path without weakening runtime safety.
+- `Initialize` rejects accidental replacement of a ready Grid; `Reload` is the deliberate replacement operation. A failed reload publishes neither stale state nor a partial candidate.
+- Verification: Unity `6000.4.12f1` Edit Mode run on 2026-08-30 passed all 40 Grid tests with 0 failures, skips, or inconclusive results and no C# compiler warnings or errors.
 
 ---
 
@@ -174,12 +183,12 @@ Provide an initial ScriptableObject asset with clearly grouped identity, geometr
 
 ## Acceptance Criteria
 
-- [ ] A valid profile creates the expected number of backing entries and active cells.
-- [ ] Every active cell reports exactly one correct zone.
-- [ ] Inactive coordinates are rejected by playable-cell queries.
-- [ ] Runtime mutation does not change the source asset.
-- [ ] Invalid profile construction publishes no partial ready state.
-- [ ] Profile identity, version, and checksum are inspectable at runtime.
+- [x] A valid profile creates the expected number of backing entries and active cells.
+- [x] Every active cell reports exactly one correct zone.
+- [x] Inactive coordinates are rejected by playable-cell queries.
+- [x] Runtime mutation does not change the source asset.
+- [x] Invalid profile construction publishes no partial ready state.
+- [x] Profile identity, version, and checksum are inspectable at runtime.
 
 ## Suggested Verification
 
