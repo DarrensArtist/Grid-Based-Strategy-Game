@@ -2,7 +2,7 @@
 
 > **Slice:** Authoritative Battlefield Presentation and Basic Grid Diagnostics  
 +> **Recommended order:** 3 of 10  
-+> **Status:** Not started  
++> **Status:** Complete  
 +> **Source:** Grid Module — Workable Implementation Slices
 
 ## Goal
@@ -25,16 +25,16 @@ Complete all required earlier slices stated in the source specification; normall
 
 ## Ordered Implementation Tasks
 
-- [ ] **Task 1: Confirm runtime presentation boundary** — Read the ready Grid through public queries only; do not make scene objects authoritative.
-- [ ] **Task 2: Create the battlefield presenter** — Subscribe to ready/reset lifecycle notifications and own only transient presentation instances.
-- [ ] **Task 3: Render active cells** — Create one placeholder surface per active cell at the authoritative returned centre; create nothing interactive for inactive coordinates.
-- [ ] **Task 4: Add zone styling and safe fallbacks** — Apply temporary Team A/Neutral/Team B styling and degrade cleanly when optional materials are missing.
-- [ ] **Task 5: Implement rebuild and disposal** — Clear only presenter-owned instances and deterministically rebuild from the same runtime state.
-- [ ] **Task 6: Add independent diagnostic layers** — Support root, footprint, coordinates, centres, stable identities, and zone toggles, disabled by default at runtime.
-- [ ] **Task 7: Support transformed roots** — Ensure surfaces and overlays remain aligned after Grid-root translation or rotation.
-- [ ] **Task 8: Add presentation tests** — Verify active-only rendering, zone mapping, unchanged logical state after visual drift, safe pre-ready behaviour, and deterministic rebuild.
-- [ ] **Task 9: Profile a representative large grid** — Confirm labels can be disabled and placeholder generation is acceptable for development use.
-- [ ] **Task 10: Run verification and report** — Check compilation/tests and list any temporary assets or future replacement seams.
+- [x] **Task 1: Confirm runtime presentation boundary** — Read the ready Grid through public queries only; do not make scene objects authoritative.
+- [x] **Task 2: Create the battlefield presenter** — Subscribe to ready/reset lifecycle notifications and own only transient presentation instances.
+- [x] **Task 3: Render active cells** — Create one placeholder surface per active cell at the authoritative returned centre; create nothing interactive for inactive coordinates.
+- [x] **Task 4: Add zone styling and safe fallbacks** — Apply temporary Team A/Neutral/Team B styling and degrade cleanly when optional materials are missing.
+- [x] **Task 5: Implement rebuild and disposal** — Clear only presenter-owned instances and deterministically rebuild from the same runtime state.
+- [x] **Task 6: Add independent diagnostic layers** — Support root, footprint, coordinates, centres, stable identities, and zone toggles, disabled by default at runtime.
+- [x] **Task 7: Support transformed roots** — Ensure surfaces and overlays remain aligned after Grid-root translation or rotation.
+- [x] **Task 8: Add presentation tests** — Verify active-only rendering, zone mapping, unchanged logical state after visual drift, safe pre-ready behaviour, and deterministic rebuild.
+- [x] **Task 9: Profile a representative large grid** — Confirm labels can be disabled and placeholder generation is acceptable for development use.
+- [x] **Task 10: Run verification and report** — Check compilation/tests and list any temporary assets or future replacement seams.
 
 ## Required Handoff Evidence
 
@@ -57,6 +57,16 @@ The slice is done only when:
 - Public APIs preserve the module boundaries and do not duplicate an earlier slice's authority.
 - Diagnostics fail clearly and do not fabricate usable state after invalid input.
 - Documentation/comments explain non-obvious rules, especially deterministic ordering, boundary behaviour, and atomicity.
+
+## Implementation Notes
+
+- `BattlefieldPresenter` binds to `RuntimeGrid`, subscribes to initialisation/reload results, and owns only a transient child hierarchy. Rebuild and disposal never modify logical cells.
+- Active surfaces use an XZ quad without colliders. Optional meshes and materials are replaceable; missing zone materials receive generated blue/grey/red unlit fallbacks.
+- Presentation children are parented beneath the authoritative Grid root, so later translation and rotation remain aligned. Every initial local position is derived from `TryGetCellCentre`.
+- Runtime diagnostic toggles for root, boundary, footprint, centres, zones, coordinates, and stable identities default off. Coordinate/identity labels and the compact metadata panel are editor-only.
+- `DevelopmentArenaGridProfile` and the generated fallback mesh/materials are temporary development assets/seams, not production presentation.
+- A 32×32 all-active fixture generated 1,024 placeholder surfaces with labels disabled inside the test's 10-second development ceiling.
+- Verification: Unity `6000.4.12f1` imported the profile, loaded the actual `GridModule` scene, and passed all 49 Edit Mode tests with 0 failures, skips, or inconclusive results and no C# compiler warnings or errors.
 
 ---
 
@@ -161,12 +171,12 @@ Expose placeholder meshes/materials, label size, diagnostic colours, and master 
 
 ## Acceptance Criteria
 
-- [ ] Only active cells receive visible playable surfaces.
-- [ ] Region colours match authoritative zone data.
-- [ ] All surfaces are centred through Grid conversion.
-- [ ] Moving a visual manually does not alter Grid state.
-- [ ] Rebuilding produces the same footprint and cell identities.
-- [ ] Diagnostic layers can be enabled separately and are disabled by default at runtime.
+- [x] Only active cells receive visible playable surfaces.
+- [x] Region colours match authoritative zone data.
+- [x] All surfaces are centred through Grid conversion.
+- [x] Moving a visual manually does not alter Grid state.
+- [x] Rebuilding produces the same footprint and cell identities.
+- [x] Diagnostic layers can be enabled separately and are disabled by default at runtime.
 
 ## Suggested Verification
 

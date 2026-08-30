@@ -15,6 +15,7 @@ namespace GridBasedStrategyGame.Grid
         public int ActiveCellCount => IsReady ? state.ActiveCellCount : 0;
         public GridGeometry Geometry => IsReady ? state.Geometry : default;
         public RuntimeGridSourceMetadata SourceMetadata => IsReady ? state.SourceMetadata : default;
+        public Transform GridRoot => IsReady ? state.Mapper.GridRoot : null;
 
         public event Action<GridInitializationResult> InitializationCompleted;
 

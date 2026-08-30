@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a90c3d0567964dd59f50145a48b17517, type: 3}
+  m_Name: DevelopmentArenaGridProfile
+  m_EditorClassIdentifier: GridBasedStrategyGame.Grid::GridBasedStrategyGame.Grid.ArenaGridProfile
+  profileId: development-arena-5x5
+  profileDisplayName: Development Arena 5x5
+  description: Small three-region profile for Grid Module development and diagnostics.
+  schemaVersion: 1
+  width: 5
+  height: 5
+  cellSize: 1
+  cellDefinitions:
+  - {isActive: 0, zone: 0}
+  - {isActive: 1, zone: 1}
+  - {isActive: 1, zone: 1}
+  - {isActive: 1, zone: 1}
+  - {isActive: 0, zone: 0}
+  - {isActive: 1, zone: 1}
+  - {isActive: 1, zone: 1}
+  - {isActive: 1, zone: 1}
+  - {isActive: 1, zone: 1}
+  - {isActive: 1, zone: 1}
+  - {isActive: 1, zone: 2}
+  - {isActive: 1, zone: 2}
+  - {isActive: 1, zone: 2}
+  - {isActive: 1, zone: 2}
+  - {isActive: 1, zone: 2}
+  - {isActive: 1, zone: 3}
+  - {isActive: 1, zone: 3}
+  - {isActive: 1, zone: 3}
+  - {isActive: 1, zone: 3}
+  - {isActive: 1, zone: 3}
+  - {isActive: 0, zone: 0}
+  - {isActive: 1, zone: 3}
+  - {isActive: 1, zone: 3}
+  - {isActive: 1, zone: 3}
+  - {isActive: 0, zone: 0}
+  expectedActiveCellCount: 21
+  layoutChecksum: dev-5x5-v1-cut-corners
+  designerNotes: Temporary development fixture. Replace through the Arena Layout Editor in later slices.

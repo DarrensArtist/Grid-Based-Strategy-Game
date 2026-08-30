@@ -383,9 +383,103 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1500000000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1500000001}
+  - component: {fileID: 1500000002}
+  - component: {fileID: 1500000003}
+  - component: {fileID: 1500000004}
+  m_Layer: 0
+  m_Name: Grid Root
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1500000001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500000000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1500000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 130a768c36fa4badbc5277b0a987f765, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: GridBasedStrategyGame.Grid::GridBasedStrategyGame.Grid.RuntimeGridHost
+  profile: {fileID: 11400000, guid: ab3997607d31409c9c1f30b01655ba6c, type: 2}
+  initialiseOnAwake: 1
+--- !u!114 &1500000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6062295d93a74cafb7a0565a2cbd4c00, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: GridBasedStrategyGame.Grid::GridBasedStrategyGame.Grid.BattlefieldPresenter
+  gridHost: {fileID: 1500000002}
+  placeholderMesh: {fileID: 0}
+  teamAMaterial: {fileID: 0}
+  neutralMaterial: {fileID: 0}
+  teamBMaterial: {fileID: 0}
+  cellFill: 0.92
+  surfaceYOffset: 0
+--- !u!114 &1500000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b0360d73a0f44c9a1bb7251d5b2e3e9, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: GridBasedStrategyGame.Grid::GridBasedStrategyGame.Grid.RuntimeGridDiagnostics
+  gridHost: {fileID: 1500000002}
+  showRoot: 0
+  showBoundary: 0
+  showActiveFootprint: 0
+  showCentres: 0
+  showZones: 0
+  showCoordinates: 0
+  showStableIdentities: 0
+  rootColour: {r: 1, g: 1, b: 1, a: 1}
+  boundaryColour: {r: 0, g: 1, b: 1, a: 1}
+  centreColour: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  teamAColour: {r: 0.2, g: 0.45, b: 1, a: 0.35}
+  neutralColour: {r: 0.55, g: 0.55, b: 0.55, a: 0.35}
+  teamBColour: {r: 1, g: 0.3, b: 0.25, a: 0.35}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 961739753}
   - {fileID: 203844589}
+  - {fileID: 1500000001}
